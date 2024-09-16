@@ -1,0 +1,17 @@
+{
+  "name": "lcts",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "repl": "tsx src/repl.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^22.5.5",
+    "tsx": "^4.19.1",
+    "typescript": "^5.6.2"
+  }
+}
