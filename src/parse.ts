@@ -75,17 +75,19 @@ export function parse(tokens: Token[]): Expr | undefined {
       return;
     }
 
-    const nextToken = getNextToken();
-    if (!nextToken) {
-      return lhs;
-    }
+    while (true) {
+      const nextToken = getNextToken();
+      if (!nextToken) {
+        return lhs;
+      }
+  
+      const rhs = parseAtom(nextToken);
+      if (!rhs) {
+        return lhs;
+      }
 
-    const rhs = parseAtom(nextToken);
-    if (!rhs) {
-      return lhs;
+      lhs = { kind: ExprKind.APP, lhs, rhs };
     }
-
-    return { kind: ExprKind.APP, lhs, rhs };
   }
 
   const parseAtom = (token: Token): Expr | undefined => {
