@@ -1,31 +1,33 @@
-type TVar = {
-  kind: 'var';
+export enum TokenKind {
+  ID = 'id',
+  LPAREN = 'lparen',
+  RPAREN = 'rparen',
+  DOT = 'dot',
+  LAMBDA = 'lambda',
+}
+
+export type TId = {
+  kind: TokenKind.ID;
   data: string;
 }
 
-type TExpr = {
-  kind: 'expr';
-  lhs: Token;
-  rhs: Token;
+export type TRParen = {
+  kind: TokenKind.RPAREN;
 }
 
-type TRPar = {
-  kind: 'rpar';
+export type TLParen = {
+  kind: TokenKind.LPAREN;
 }
 
-type TLPar = {
-  kind: 'lpar';
+export type TDot = {
+  kind: TokenKind.DOT;
 }
 
-type TDot = {
-  kind: 'dot';
+export type TLambda = {
+  kind: TokenKind.LAMBDA;
 }
 
-type TLambda = {
-  kind: 'lambda';
-}
-
-export type Token = TVar | TDot | TLambda | TExpr | TRPar | TLPar;
+export type Token = TId | TDot | TLambda | TRParen | TLParen;
 
 export function tokenize(input: string): Token[] {
   if (input.length === 0) {
@@ -48,31 +50,31 @@ export function tokenize(input: string): Token[] {
       while (j < input.length && isAlpha(input[j])) {
         j++;
       }
-      tokens.push({ kind: 'var', data: input.slice(i, j) });
+      tokens.push({ kind: TokenKind.ID, data: input.slice(i, j) });
       i = j;
       continue;
     }
 
     if (isLambda(c)) {
-      tokens.push({ kind: 'lambda' });
+      tokens.push({ kind: TokenKind.LAMBDA });
       i++;
       continue;
     }
 
     if (isDot(c)) {
-      tokens.push({ kind: 'dot' });
+      tokens.push({ kind: TokenKind.DOT });
       i++;
       continue;
     }
 
     if (isLPar(c)) {
-      tokens.push({ kind: 'lpar' });
+      tokens.push({ kind: TokenKind.LPAREN });
       i++;
       continue;
     }
 
     if (isRPar(c)) {
-      tokens.push({ kind: 'rpar' });
+      tokens.push({ kind: TokenKind.RPAREN });
       i++;
       continue;
     }

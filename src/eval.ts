@@ -25,12 +25,17 @@ const evalExpr = (expr: Expr, ctx: Record<string, string> = {}) => {
 }
 
 export const _eval = (input: string) => {
-  const tokens = tokenize(input);
-  const ast = parse(tokens);
-
-  if (!ast) {
-    throw new Error('Failed to parse');
+  try {
+    const tokens = tokenize(input);
+    const ast = parse(tokens);
+  
+    if (!ast) {
+      throw new Error('Failed to parse');
+    }
+  
+    console.dir({ ast }, { depth: null });
+  } catch (e) {
+    console.log(e);
+    throw e;
   }
-
-  console.dir({ ast }, { depth: null });
 }

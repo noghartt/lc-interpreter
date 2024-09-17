@@ -1,18 +1,24 @@
-import type { Token } from './token';
+import { TId, Token, TokenKind } from './token';
+
+enum ExprKind {
+  VAR = 'var',
+  ABS = 'abs',
+  APP = 'app',
+}
 
 type EVar = {
-  kind: 'var';
+  kind: ExprKind.VAR;
   data: string;
 }
 
 type EAbs = {
-  kind: 'abs';
-  head: string;
+  kind: ExprKind.ABS;
+  param: string;
   body: Expr;
 }
 
 type EApp = {
-  kind: 'app';
+  kind: ExprKind.APP;
   lhs: Expr;
   rhs: Expr;
 }
@@ -21,19 +27,23 @@ export type Expr = EVar | EAbs | EApp | Record<string, never>;
 
 export function parse(tokens: Token[]): Expr | undefined {
   if (tokens.length === 0) {
-    return;
+    throw new Error('Empty input');
   }
 
-  const getNextToken = () => {
-    if (i >= tokens.length) {
-      return;
-    }
-
+  const getNextToken = (): Token => {
     i++;
     return tokens[i];
-  }
+  };
 
-  const expectToken = (kind: string): Token => {
+  const matchNextToken = (kind: TokenKind): boolean => {
+    if (tokens[i + 1]?.kind !== kind) {
+      return false;
+    }
+    i++;
+    return true;
+  };
+
+  const getNextTokenByKind = (kind: TokenKind): Token => {
     const token = getNextToken();
     if (!token || token.kind !== kind) {
       throw new Error(`Expected ${kind}, got ${token?.kind}`);
@@ -41,108 +51,62 @@ export function parse(tokens: Token[]): Expr | undefined {
     return token;
   }
 
-  const parseExpr = (token: Token): Expr | undefined => {
-    const s =  parseApp(token) || parseAbs(token) || parseVar(token);
-    return s;
-  }
-
-  const parseAbs = (token: Token): Expr | undefined => {
-    if (token.kind !== 'lambda') {
-      return;
+  const parseTerm = (token: Token): Expr | undefined => {
+    const isLambda = token.kind === TokenKind.LAMBDA;
+    if (!isLambda) {
+      return parseApplication(token);
     }
 
-    // skip lambda
-    getNextToken();
+    const param = getNextTokenByKind(TokenKind.ID);
 
-    const head = tokens[i];
-    if (!head || head.kind !== 'var') {
-      return;
-    }
+    matchNextToken(TokenKind.DOT);
 
-    // skip dot
-    getNextToken();
-
-    const bodyToken = getNextToken();
-    if (!bodyToken) {
-      return;
-    }
-
-    if (bodyToken.kind === 'lpar') {
-      const nextToken = getNextToken();
-      if (!nextToken) {
-        return;
-      }
-      return parseExpr(nextToken);
-    }
-
-    const body = parseExpr(bodyToken);
+    const body = parseTerm(getNextToken());
     if (!body) {
-      return;
+      throw new Error('Expected body');
     }
-    return { kind: 'abs', head: head.data, body }; 
+
+    return { kind: ExprKind.ABS, param: param.data, body };
   }
 
-  const parseApp = (token: Token): Expr | undefined => {
-    if (token.kind !== 'lpar') {
-      return;
-    }
-
-    const lhsT = getNextToken();
-    const lhs = parseExpr(lhsT!);
+  const parseApplication = (token: Token): Expr | undefined => {
+    let lhs = parseAtom(token);
     if (!lhs) {
       return;
     }
 
-    const tt = getNextToken();
-    if (tt && tt.kind === 'var') {
-      const rhs = parseExpr(tt);
-      if (!rhs) {
-        return;
-      }
-      expectToken('rpar');
-      return { kind: 'app', lhs, rhs };
-    } else {
-      if (!tt || tt.kind !== 'rpar') {
-        return;
-      }
-    }
-    
-    const t = getNextToken();
-    if (!t) {
+    const nextToken = getNextToken();
+    if (!nextToken) {
       return lhs;
     }
 
-    const rhs = parseExpr(t);
+    const rhs = parseAtom(nextToken);
     if (!rhs) {
-      return;
+      return lhs;
     }
 
-    return { kind: 'app', lhs, rhs };
+    return { kind: ExprKind.APP, lhs, rhs };
   }
 
-  const parseVar = (token: Token): Expr | undefined => {
-    if (token.kind !== 'var') {
-      return;
+  const parseAtom = (token: Token): Expr | undefined => {
+    const isLParen = token.kind === TokenKind.LPAREN;
+    if (isLParen) {
+      const expr = parseTerm(getNextToken());
+      matchNextToken(TokenKind.RPAREN);
+      return expr;
     }
 
-    return { kind: 'var', data: token.data };
+    const isID = token?.kind === TokenKind.ID;
+    if (isID) {
+      return { kind: ExprKind.VAR, data: token.data };
+    }
   }
 
-  let ast: Expr | undefined;
   let i = 0;
-  while (i < tokens.length) {
-    const token = tokens[i];
-    if (token.kind === 'dot' && i > 0 && tokens[i + 1].kind === 'var') {
-      throw new Error('Unexpected dot');
-    }
-    ast = parseExpr(token);
-    i++;
-  }
-
+  let ast: Expr | undefined = parseTerm(tokens[0]);
   if (!ast) {
     throw new Error("Wrong syntax: failed to parse");
   }
 
   return ast;
 }
-

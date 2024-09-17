@@ -7,7 +7,7 @@ describe('tokenize', () => {
   it('should tokenize a single variable', () => {
     const tokens = tokenize('x');
     equal(tokens.length, 1);
-    equal(tokens[0].kind, 'var');
+    equal(tokens[0].kind, 'id');
     // @ts-ignore
     equal(tokens[0].data, 'x');
   });
@@ -17,11 +17,11 @@ describe('tokenize', () => {
     equal(tokens.length, 4);
     const [lambda, var1, dot, var2] = tokens;
     equal(lambda.kind, 'lambda');
-    equal(var1.kind, 'var');
+    equal(var1.kind, 'id');
     // @ts-ignore
     equal(var1.data, 'x');
     equal(dot.kind, 'dot');
-    equal(var2.kind, 'var');
+    equal(var2.kind, 'id');
     // @ts-ignore
     equal(var2.data, 'x');
   });
@@ -31,11 +31,11 @@ describe('tokenize', () => {
     equal(tokens.length, 4);
     const [lambda, var1, dot, var2] = tokens;
     equal(lambda.kind, 'lambda');
-    equal(var1.kind, 'var');
+    equal(var1.kind, 'id');
     // @ts-ignore
     equal(var1.data, 'xy');
     equal(dot.kind, 'dot');
-    equal(var2.kind, 'var');
+    equal(var2.kind, 'id');
     // @ts-ignore
     equal(var2.data, 'xy');
   });
@@ -44,16 +44,16 @@ describe('tokenize', () => {
     const tokens = tokenize('(\\x.x) y');
     equal(tokens.length, 7);
     const [lpar, lambda, var1, dot, var2, rpar] = tokens;
-    equal(lpar.kind, 'lpar');
+    equal(lpar.kind, 'lparen');
     equal(lambda.kind, 'lambda');
-    equal(var1.kind, 'var');
+    equal(var1.kind, 'id');
     // @ts-ignore
     equal(var1.data, 'x');
     equal(dot.kind, 'dot');
-    equal(var2.kind, 'var');
+    equal(var2.kind, 'id');
     // @ts-ignore
     equal(var2.data, 'x');
-    equal(rpar.kind, 'rpar');
+    equal(rpar.kind, 'rparen');
   });
 });
 

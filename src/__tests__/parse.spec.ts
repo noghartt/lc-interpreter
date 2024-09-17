@@ -10,7 +10,7 @@ it('should parse an application', () => {
 
   equal(ast?.kind, 'app');
   equal(ast?.lhs?.kind, 'abs');
-  equal(ast?.lhs?.head, 'x');
+  equal(ast?.lhs?.param, 'x');
   equal(ast?.lhs?.body?.kind, 'var');
   equal(ast?.lhs?.body?.data, 'x');
   equal(ast?.rhs?.kind, 'var');
@@ -29,7 +29,7 @@ it('should parse a single abstraction', () => {
   const tokens = tokenize('\\x.x');
   const ast = parse(tokens);
   equal(ast?.kind, 'abs');
-  equal(ast?.head, 'x');
+  equal(ast?.param, 'x');
   equal(ast?.body?.kind, 'var');
   equal(ast?.body?.data, 'x');
 });
