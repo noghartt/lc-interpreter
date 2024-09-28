@@ -1,6 +1,6 @@
-import { TId, Token, TokenKind } from './token';
+import { Token, TokenKind } from './token';
 
-enum ExprKind {
+export enum ExprKind {
   VAR = 'var',
   ABS = 'abs',
   APP = 'app',
@@ -29,6 +29,8 @@ export function parse(tokens: Token[]): Expr | undefined {
   if (tokens.length === 0) {
     throw new Error('Empty input');
   }
+
+  const ctx = new Set<string>();
 
   const getNextToken = (): Token => {
     i++;
@@ -66,6 +68,7 @@ export function parse(tokens: Token[]): Expr | undefined {
       throw new Error('Expected body');
     }
 
+    // @ts-ignore
     return { kind: ExprKind.ABS, param: param.data, body };
   }
 

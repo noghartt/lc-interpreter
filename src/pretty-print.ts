@@ -6,7 +6,7 @@ export const prettyPrint = (ast: Expr): string => {
   }
 
   if (ast.kind === 'abs') {
-    return `\\${ast.head}.${prettyPrint(ast.body)}`;
+    return `\\${ast.param}.${prettyPrint(ast.body)}`;
   }
 
   if (ast.kind === 'app') {
